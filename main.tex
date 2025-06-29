@@ -1,0 +1,179 @@
+% This is samplepaper.tex, a sample chapter demonstrating the
+% LLNCS macro package for Springer Computer Science proceedings;
+% Version 2.21 of 2022/01/12
+%
+\documentclass[runningheads]{llncs}
+%
+\usepackage[T1]{fontenc}
+% T1 fonts will be used to generate the final print and online PDFs,
+% so please use T1 fonts in your manuscript whenever possible.
+% Other font encondings may result in incorrect characters.
+%
+\usepackage{graphicx}
+% Used for displaying a sample figure. If possible, figure files should
+% be included in EPS format.
+%
+% If you use the hyperref package, please uncomment the following two lines
+% to display URLs in blue roman font according to Springer's eBook style:
+%\usepackage{color}
+%\renewcommand\UrlFont{\color{blue}\rmfamily}
+%\urlstyle{rm}
+%
+
+\usepackage{amssymb}
+\include{macros}
+\begin{document}
+%
+\title{Transaction Order Fairness in Synchronous Networks}
+%
+%\titlerunning{Abbreviated paper title}
+% If the paper title is too long for the running head, you can set
+% an abbreviated paper title here
+%
+\author{Zhuo Cai\inst{1}\orcidID{0000-0001-9673-6888} \and
+Amir Kafshdar Goharshady\inst{2}\orcidID{0000-0003-1702-6584}}
+%
+\authorrunning{Z. Cai and A. Goharshady}
+% First names are abbreviated in the running head.
+% If there are more than two authors, 'et al.' is used.
+%
+\institute{Hong Kong University of Science and Technology, HKSAR, China \email{zcaiam@connect.ust.hk} \and
+University of Oxford, Oxford, UK 
+\email{goharshady@cs.ox.ac.uk}}
+%
+\maketitle              % typeset the header of the contribution
+%
+\begin{abstract}
+The abstract should briefly summarize the contents of the paper in
+150--250 words.
+
+\keywords{First keyword  \and Second keyword \and Another keyword.}
+\end{abstract}
+%
+%
+
+\section{Introduction}
+Following research of \cite{DBLP:conf/crypto/Kelkar0GJ20}. 
+
+\subsection{System Model}
+\paragraph{Nodes/Committee} Assume a committee of $n$ nodes is responsible for processing transactions in the blockchain system. 
+
+\paragraph{Communication} Unless otherwise stated, we assume the communication network is synchronous, i.e., there is a known upper bound $\Delta$ on the time it takes for a message to be delivered from one node to all other nodes. In other words, for each transaction request, every committee node receives it. Moreover, the first node to receive the transaction receives the request at most $\Delta$ time before the last node receives it. 
+
+\paragraph{Adversary Model} Unless otherwise stated, we assume that a small set of nodes is controlled by an arbitrary adversary. Let $h$ be the ratio of honest nodes, and $m=1-h$ be the ratio of malicious nodes. Let $H$ be the set of honest nodes and $M$ be the set of malicious nodes. We require that $h$ is at least larger than $1/2$. In some cases, we require $h$ to be larger than a higher threshold. 
+
+\paragraph{Notations} Let $N = \{1, 2, \dots, n\}$ denote the set of committee nodes. Let $\tx$ denote a transaction and $\TX$ denote the universe of transactions. Let $t_i:\TX\to \mathbb{R}$ denote the mapping from a transaction $\tx$ to the time at which node $i\in N$ receives the transaction. We assume that $t_i(\tx)$ is defined for all nodes $i\in N$.
+
+\paragraph{Timestamp Report} A timestamp report for a node $i$, $R_i$, is a list of tuples $(\tx, t_i(\tx))$ for a subset of transactions that node $i$ has received. Note that malicious nodes might report timestamps different from the actual time they received the transactions. Therefore, we use $t_i(\tx)$ to denote the reported timestamp of transaction $\tx$ by node $i$, and use $\tilde{t}_i(\tx)$ to denote the actual time of node $i$ receiving $\tx$. 
+
+\paragraph{Transaction Ordering Mechanism} A transaction ordering mechanism $\Gamma$ for $n$ nodes, is a function that takes as input a set of timestamp reports from all nodes and outputs a total ordering of the transactions appearing in the timestamp reports. In application, every node should report all transactions that it has received but has not been included in previous blocks yet. Malicious nodes might not share their reports, in which case the ordering mechanism $\Gamma$ use default empty reports for these nodes. 
+
+
+
+
+\subsection{Definition}
+We define a new relaxation of the transaction order fairness property, which we call \emph{($\gamma,\delta$)-transaction order fairness}, parameterized by a ratio $\gamma\in (1/2,1)$ and a duration $\delta>0$. We introduce more notations before presenting the definition. 
+
+\paragraph{More Notations} Let $I^{\delta,\{R_i\}_{i\in N}}(\tx_1, \tx_2):=\{i\in N: t_i(\tx_1) \le t_i(\tx_2)-\delta \}$ denote the set of nodes that receive transaction $\tx_1$ at least $\delta$ time before they receive transaction $\tx_2$. If a node does not report to receive $\tx_1$ or $\tx_2$, it is not considered in the set $I^{\delta,\{R_i\}_{i\in N}}(\tx_1, \tx_2)$. When it is clear from the context, we will omit $\delta$ and the set of timestamp reports $\{R_i\}_{i\in N}$ and simply write $I(\tx_1, \tx_2)$.
+
+The definition is as follows: 
+\begin{definition}[$(\gamma,\delta)$-Transaction Order Fairness]
+A transaction ordering mechanism $\Gamma$ is said to satisfy \emph{($\gamma,\delta$)-transaction order fairness} if the following conditions hold:
+\begin{itemize}
+\item \emph{Fairness Condition:} For any two different transactions $\tx_1, \tx_2\in \TX$, if $|I(\tx_1, \tx_2)|\ge \gamma n$, which we denote as a constraint relation $\tx_1\prec \tx_2$, then $\Gamma$ outputs $\tx_1$ before $\tx_2$.
+\end{itemize}
+\end{definition}
+
+
+\begin{lemma}
+A $(\gamma,\delta)$-transaction order fairness mechanism $\Gamma$ exists, if and only if there is no list of transactions $\tx_1, \tx_2,\dots, \tx_k$ such that $\tx_1\prec \tx_2\cdots \prec \tx_k \prec \tx_1$. 
+\end{lemma}
+
+Notation: we call a list of transactions $\tx_1, \tx_2,\dots, \tx_k$ such that $\tx_1\prec \tx_2\cdots \prec \tx_k \prec \tx_1$ as a \emph{precede loop}.
+
+\begin{proof} 
+    (1) If there exists a mechanism $\Gamma$, for any list of transactions $\tx_1, \tx_2,\dots, \tx_k$ such that $\tx_1\prec \tx_2\cdots \prec \tx_k \prec \tx_1$, then $\Gamma$ should output $\tx_1$ before $\tx_2$, $\tx_2$ before $\tx_3$, ..., and $\tx_k$ before $\tx_1$. This is a contradiction, since the output of $\Gamma$ is a total ordering of transactions.
+    (2) Now assume there is no list of transactions $\tx_1, \tx_2,\dots, \tx_k$ such that $\tx_1\prec \tx_2\cdots \prec \tx_k \prec \tx_1$. We observe that for any set of transactions, one of it is not constraint to be preceded by other transactions, since otherwise every transaction is preceded by some other transaction so that a precede loop exists. We can construct a mechanism $\Gamma$ by repeating the following: pick one transaction $\tx$ from the set of all unpicked transactions, such that there is no transaction $\tx'$ such that $\tx'\prec \tx$. $\Gamma$ outputs transactions by the order they are picked. 
+\end{proof}
+
+\paragraph{Basic bounds for $\gamma$} We naturally require that $\gamma$ be in $(m, h]$. If $\gamma$ is smaller than $m$, then malicious nodes can always report they receive a transaction $\tx_1$ before another transaction $\tx_2$ while honest nodes report the opposite. $\tx_1\prec\tx_2$ and $\tx_2\prec\tx_1$ can both hold, which leads to a precede loop, so that no mechanism achieves our fairness property. If $\gamma$ is larger than $h$, if malicious nodes always report the opposite of (the majority of) honest nodes, then the number of nodes that report to receive $\tx_1$ before $\tx_2$ is at most $h n$, which is smaller than $\gamma n$. No meaningful precede constraint is placed on the transactions, and the mechanism can output any order of transactions. 
+
+In some cases (small $\delta$ or asynchronous network), we require $\gamma$ to be larger than $1/2$ to avoid the possibility of $\tx_1\prec \tx_2$ and $\tx_2\prec \tx_1$ both holding. In other cases (synchronous network and large $\delta$), self-loop is impossible even for $\gamma\in (m, 1/2]$. 
+
+\section{Results under the Synchronous Network Model}
+
+In this section, we assume that the synchronous delay is $\Delta$, i.e., whenever an honest node receives a transaction $\tx$ at time $t$, all other honest nodes receive the transaction within the range $[t-\Delta, t+\Delta]$. More precisely, a transaction is received by honest nodes within a $\Delta$-time window $[t', t'+\Delta]$, by picking $t'$ as the earliest time for an honest node to receive it. 
+
+\paragraph{Pruning} Due to the above assumption, a transaction ordering mechanism can prune the reports. If more than $mn$ nodes report to receive a transaction $\tx$ at or before time $t$, then the mechanism can prune the reports of all nodes that report to receive $\tx$ at time larger than $t+\Delta$. This is because if an honest node receives $\tx$ by $t$, other nodes must have received it by $t+\Delta$. Similarly, if more than $hn$ nodes report to receive a transaction $\tx$ at or after time $t$, then the mechanism can prune the reports of all nodes that report to receive $\tx$ at time before $t-\Delta$. If a node is pruned, its report is completely discarded. Pruning only excludes malicious nodes. Pruning is applied exhaustively, until no more pruning can be applied. In subsequent steps of pruning, the pruning threshold is defined as $n'-hn$ where $n'$ is the number of remaining valid reports. This is safe because we only exclude malicious nodes in pruning. 
+
+
+% \begin{lemma}
+% If after pruning, among the remaining valid reports, say $n'$ valid reports, if more than $mh'$ nodes report to receive a transaction $\tx$ at or before time $t$, then any report that reports $\tx$ at time after $t+\Delta$ has been pruned. Similarly, if more than $mn-(n-n') =n'-hn$ nodes report to receive a transaction $\tx$ at or after time $t$, then any report that reports $\tx$ at time before $t-\Delta$ has been pruned.
+% \end{lemma}
+%
+%The proof is obvious by the definition of pruning. 
+
+At the end of exhaustive pruning, we have a set of valid reports. Let $n'$ be the number of valid reports. $n-n'$ nodes are excluded, all of which are malicious nodes. The number of remaining honest nodes is $hn$ and the number of remaining malicious nodes is $n'-hn$. We claim that if more than $n'-hn$ nodes report to receive $\tx$ by time $t$, then all valid reports receive $\tx$ by time $t+\Delta$. Similarly, if more than $n'-hn$ nodes report to receive $\tx$ after time $t$, then all valid reports receive $\tx$ after time $t-\Delta$. The threshold $n'-hn$ translates to a ratio of $1-(n/n')h$. $1-(n/n')h \le 1-h = m$. 
+
+
+ 
+\paragraph{Missing transactions and truncation} The set of transactions reported by different nodes might be different. A mechanism needs a rule to handle missing transactions. The main possible issue is missing a preceding constraint. More specifically, $\tx_1$ and $\tx_2$ are reported by some nodes in the current slot, but a precede relation $\tx_1\prec \tx_2$ lacks attestation in the current slot. In the next report slot, some others nodes report $\tx_1$ or $\tx_2$ for the first time and reports to receive $\tx_1$ before $\tx_2$ by $\delta$.  In this section, we assume all nodes share a world clock and send reports at exactly pre-specified time. 
+
+We use the following general solution: transaction ordering mechanisms only consider transactions that have been received by at least $hn$ nodes $\Delta$ time before the prescribed report time.  For example, if a report is scheduled at time $t$, then the mechanism only considers transactions that have been received by at least $hn$ nodes before time $t-\Delta$. We prove that transactions ordered by such a mechanism will not violate precede constraints in future slots. Proof by contradiction, if $\tx_1\prec \tx_2$ but the mechanism (1) outputs $\tx_2$ before $\tx_1$, or (2) outputs $\tx_2$ but not $\tx_1$. In case (1), at least $hn$ nodes received $\tx_1$ by $t-\Delta$, by pruning all reports of nodes that received $\tx_1$ after $t$ are pruned. The same applies to $\tx_2$. This implies that all valid reports of $\tx_1$ and $\tx_2$ are already considered. (2) Since $\tx_2$ is output, at least $hn$ nodes received $\tx_2$ by $t-\Delta$, by pruning, all valid reports received $\tx_2$ by $t$. If $\tx_1\prec \tx_2$, then all valid reports received $\tx_1$ by $t-\delta$, which should appear in the reports of the current slot. 
+
+\paragraph{Constructive Mechanism vs General Mechanism} There are two flavors to show existence of transaction order fairness mechanisms. The first is to construct a mechanism that satisfies the fairness property, which we call a \emph{constructive mechanism}. The second is to show that no precede loop exists, and then use a general mechanism to order the transactions. 
+
+\subsection{A simple mechanism: median timestamp}
+We first present a simple mechanism that computes the median timestamp over nodes of every transaction, then orders the transactions by their median timestamps. If two transactions have the same median timestamp, we break the tie by hashes of the transactions. 
+
+The median timestamp mechanism uses pruning and completely discard invalid reports. The median is defined as the median among valid reports. For transactions appearing in some but not all valid reports, we compute the median timestamp by considering missing timestamps as $+\infty$. By truncation, for every transaction that the mechanism outputs, at least $hn>n/2$ timestamps are received so that its median timestamp is one of the actually reported timestamps (not $+\infty$).  
+
+\subsection{$(\gamma\in(m,h], \delta\in(2\Delta,+\infty))$-fairness exists}
+
+For any sequence of transactions $\tx_1, \tx_2, \dots, \tx_k$ such that $\tx_1\prec \tx_2\prec \cdots \prec \tx_k$, we show that $\tx_k \prec \tx_1$ does not hold. 
+\begin{proof}
+For any $\tx_i$ and $\tx_{i+1}$, $\tx_i\prec \tx_{i+1}$ implies that at least one honest node $j$ satisfies $t_j(\tx_{i}) < t_j(\tx_{i}) - \delta$. For any other honest node $j'$, we have $t_{j'}(\tx_{i}) \le t_j(\tx_{i}) + \Delta$ and $t_{j'}(\tx_{i+1}) \ge t_j(\tx_{i+1}) - \Delta$. Therefore, we have $t_{j'}(\tx_i) < t_{j'}(\tx_{i+1}) - (\delta - 2\Delta) < t_{j'}(\tx_{i+1})$. This implies all honest nodes receive $\tx_{i}$ before $\tx_{i+1}$. Therefore, all honest nodes receive $\tx_{1}$ before $\tx_{k}$. $I(\tx_{k}, \tx_{1})$ is a subset of malicious nodes $M$. Therefore, $|I(\tx_{k}, \tx_{1})|\le mn < \gamma n$. 
+\end{proof} 
+
+\subsection{$(\gamma\in(1/2,h], \delta\in(\Delta,+\infty))$-fairness exists}
+We show that the median timestamp mechanism satisfies transaction order fairness for $\gamma\in(1/2,h]$ and $\delta\in(\Delta,+\infty)$. We show that whenever $\tx_1\prec \tx_2$, the median timestamp of $\tx_1$ is smaller than that of $\tx_2$. But we prove it in the reverse direction, i.e., if the median timestamp of $\tx_1$ is larger than or equal to that of $\tx_2$, then $\tx_1\prec \tx_2$ does not hold. 
+
+\begin{proof}
+    Let $t_1, t_2$ denote the median timestamp of $\tx_1$ and $\tx_2$. Let $n'$ denote the number of valid reports. The assumption says that $t_1\ge t_2$. More than $n'/2$ nodes report $\tx_1$ at or after $t_1$. By pruning, all valid nodes report $\tx_1$ at or after $t_1-\Delta$. On the other hand, the set of valid nodes who report $\tx_2$ at or before $t_2$, denoted $S_2$, consist of more than $n'/2$ nodes. The set $S_2$ and set $I(\tx_1, \tx_2)$ are disjoint, because for every node $j\in S_2$, $t_j(\tx_1) - t_j(\tx_2)\ge t_1 - \Delta -t_2 \ge -\Delta > -\delta$. Then the set $|I(\tx_1,\tx_2)| < n'/2 \le n/2 < \gamma n$.   
+\end{proof}
+
+\subsection{$(\gamma\in(\frac{k}{k+1}, h], \delta\in (\Delta/k, +\infty)$-fairness exists}
+Can we achieve fairness with smaller $\delta$? The answer is yes, if we increase the ratio $\gamma$. 
+
+\begin{lemma}
+When $\gamma\in (1-\frac{1}{k}, h]$ and $\delta > 0$, for any sequence of $j\le k$ transactions $\tx_1, \tx_2, \dots, \tx_{j}$ such that $\tx_1\prec \tx_2\prec \cdots \prec \tx_{j}$, $\tx_{j}\prec \tx_1$ does not hold. 
+\end{lemma}
+
+\begin{proof}
+    Let $S(\tx, \tx')$ denote the set of nodes that receive transaction $\tx$ before transaction $\tx'$. It is clear that $I(\tx, \tx')\subseteq S(\tx, \tx')$. Suppose $\tx_j\prec\tx_1$ holds. Then any set from $I(\tx_1,\tx_2), \dots, I(\tx_{j}, \tx_{1})$ has at least $\gamma n$ nodes. Therefore, the intersection of these $k$ sets has at least $j\gamma n - (j-1) n = jn(\gamma - (1-\frac{1}{j})) > jn(1-\frac{1}{k} - (1-\frac{1}{j})) \ge 0$ nodes. Take one node from this non-empty intersection, it receives $\tx_1$ before $\tx_j$ and receives $\tx_j$ before $\tx_1$. This is a contradiction. 
+\end{proof}
+
+The above lemma implies that we can increase the ratio $\gamma$ to rule out more precede loops. However, the ratio will be $1$ when we want to rule out all precede loops. We need another scheme to rule out all precede loops. 
+
+\begin{lemma}
+    If $\gamma \in (1-\frac{h}{k}, h]$ and $\delta > 2D/k$, for any sequence of $k+1$ transactions $\tx_1, \tx_2, \dots, \tx_{k+1}$ such that $\tx_1\prec \tx_2\prec \cdots \prec \tx_{k+1}$, all honest nodes receive $\tx_1$ before $\tx_{k+1}$.
+\end{lemma}
+\begin{proof}
+    
+\end{proof}
+
+\begin{credits}
+\subsubsection{\ackname} 
+\subsubsection{\discintname}
+
+\end{credits}
+%
+% ---- Bibliography ----
+%
+% BibTeX users should specify bibliography style 'splncs04'.
+% References will then be sorted and formatted in the correct style.
+%
+\bibliographystyle{splncs04}
+\bibliography{reference}
+%
+\end{document}
