@@ -145,6 +145,16 @@ We show that the median timestamp mechanism satisfies transaction order fairness
 \subsection{$(\gamma\in(\frac{k}{k+1}, h], \delta\in (\Delta/k, +\infty)$-fairness exists}
 Can we achieve fairness with smaller $\delta$? The answer is yes, if we increase the ratio $\gamma$. 
 
+\begin{lemma}\label{lemma:intersect}
+    For any set $U$ and $k$ subsets $S_1, S_2, \dots, S_k$ of $U$, let $I$ denote the intersection of these $k$ sets, i.e., $I = S_1\cap S_2\cap \cdots \cap S_k$. The size of $T$ is at least $\sum_{i=1}^k |S_i| - (k-1)|U|$. 
+\end{lemma}
+
+\begin{proof}
+    Denote the intersection of the first $j$ sets $S_1\cap S_2\cap\cdots \cap S_j$ as $T_j$, for all $j\le k$. We prove the lemma by induction on $j$. The base case $j=1$ is trivial. For the inductive step, we assume the lemma holds for $j-1$ and prove it for $j$. We have $|T_j| = |T_{j-1}\cap S_j| = |T_{j-1}| + |S_j| - |T_{j-1}\cup S_j|$. By the inductive hypothesis, we have $|T_{j-1}| \ge \sum_{i=1}^{j-1} |S_i| - (j-2)|U|$. Therefore,
+    \[|T_j| \ge \sum_{i=1}^{j-1} |S_i| - (j-2)|U| + |S_j| - |T_{j-1}\cup S_j| \ge \sum_{i=1}^{j} |S_i| - (j-1)|U|.\]
+    The last inequality holds because $|T_{j-1}\cup S_j|\le |U|$, since $T_{j-1}\cup S_j$ is a subset of $U$.  
+\end{proof}
+
 \begin{lemma}
 When $\gamma\in (1-\frac{1}{k}, h]$ and $\delta > 0$, for any sequence of $j\le k$ transactions $\tx_1, \tx_2, \dots, \tx_{j}$ such that $\tx_1\prec \tx_2\prec \cdots \prec \tx_{j}$, $\tx_{j}\prec \tx_1$ does not hold. 
 \end{lemma}
@@ -156,11 +166,13 @@ When $\gamma\in (1-\frac{1}{k}, h]$ and $\delta > 0$, for any sequence of $j\le 
 The above lemma implies that we can increase the ratio $\gamma$ to rule out more precede loops. However, the ratio will be $1$ when we want to rule out all precede loops. We need another scheme to rule out all precede loops. 
 
 \begin{lemma}
-    If $\gamma \in (1-\frac{h}{k}, h]$ and $\delta > 2D/k$, for any sequence of $k+1$ transactions $\tx_1, \tx_2, \dots, \tx_{k+1}$ such that $\tx_1\prec \tx_2\prec \cdots \prec \tx_{k+1}$, all honest nodes receive $\tx_1$ before $\tx_{k+1}$.
+    If $\gamma \in (1-\frac{h}{k}, h]$ and $\delta > 2\Delta/k$, for any sequence of $k+1$ transactions $\tx_1, \tx_2, \dots, \tx_{k+1}$ such that $\tx_1\prec \tx_2\prec \cdots \prec \tx_{k+1}$, all honest nodes receive $\tx_1$ before $\tx_{k+1}$.
 \end{lemma}
 \begin{proof}
-    
+    Consider the sets $IH_1 = I(\tx_1, \tx_2)\cap H, IH_2 = I(\tx_2, \tx_3)\cap H, \dots, IH_k=I(\tx_k, \tx_{k+1})\cap H$. Each set $IH_i$ consists of at least $(\gamma-m)n$ nodes. Each set $IH_i$ is also a subset of $H$, whose size is $hn$. By Lemma \ref{lemma:intersect}, the intersection of these $k$ sets has at least $k(\gamma-m)n - (k-1)hn = kn(\gamma - (1-\frac{h}{k})) > 0$ nodes. Take one node from this non-empty intersection, it is honest and receives $\tx_1$ before $\tx_{k+1}$ by $k\delta > 2\Delta$. Other valid nodes receive $\tx_1$ before $\tx_{k+1}$. 
 \end{proof}
+
+
 
 \begin{credits}
 \subsubsection{\ackname} 
