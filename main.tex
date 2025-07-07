@@ -123,8 +123,10 @@ We use the following general solution: transaction ordering mechanisms only cons
 
 \paragraph{Constructive Mechanism vs General Mechanism} There are two flavors to show existence of transaction order fairness mechanisms. The first is to construct a mechanism that satisfies the fairness property, which we call a \emph{constructive mechanism}. The second is to show that no precede loop exists, and then use a general mechanism to order the transactions. 
 
-\subsection{A simple mechanism: median timestamp}
-We first present a simple mechanism that computes the median timestamp over nodes of every transaction, then orders the transactions by their median timestamps. If two transactions have the same median timestamp, we break the tie by hashes of the transactions. 
+\subsection{Two simple mechanisms: arbitrary timestamp and median timestamp}
+We present two simple mechanisms. The first is to simply select an honest node to broadcast its local timestamps of receiving transactions. How to make sure the proposal is honest? If more than $mn$ nodes object to the proposal, then the proposal is not honest. Nodes object to the proposal if after comparing the proposal with their own timestamps and find any transaction $\tx$ such that the proposal reports to receive $\tx$ at more than $\Delta$ time away from their own timestamps. Such a mechanism can be easily adopted in practice, by asking the validators to attach their local timestamps in their proposals and asking the committee to not vote for proposals that have inconsistent timestamps. This simple mechanism satisfies the fairness property for $\gamma\in(m,h]$ and $\delta\in(4\Delta,+\infty)$. If a precede relation $\tx_1\prec \tx_2$ exists, then an honest node receives $\tx_1$ before $\tx_2$ by $\delta>4\Delta$. According to $\Delta$-synchrony, all honest nodes receive $\tx_1$ before $\tx_2$ by $2\Delta$. If a node tries to put $\tx_2$ before $\tx_1$ in the proposal, then it is considered invalid by all honest nodes. 
+
+The second computes the median timestamp over nodes of every transaction, then orders the transactions by their median timestamps. If two transactions have the same median timestamp, we break the tie by hashes of the transactions. 
 
 The median timestamp mechanism uses pruning and completely discard invalid reports. The median is defined as the median among valid reports. For transactions appearing in some but not all valid reports, we compute the median timestamp by considering missing timestamps as $+\infty$. By truncation, for every transaction that the mechanism outputs, at least $hn>n/2$ timestamps are received so that its median timestamp is one of the actually reported timestamps (not $+\infty$).  
 
@@ -142,7 +144,7 @@ We show that the median timestamp mechanism satisfies transaction order fairness
     Let $t_1, t_2$ denote the median timestamp of $\tx_1$ and $\tx_2$. Let $n'$ denote the number of valid reports. The assumption says that $t_1\ge t_2$. More than $n'/2$ nodes report $\tx_1$ at or after $t_1$. By pruning, all valid nodes report $\tx_1$ at or after $t_1-\Delta$. On the other hand, the set of valid nodes who report $\tx_2$ at or before $t_2$, denoted $S_2$, consist of more than $n'/2$ nodes. The set $S_2$ and set $I(\tx_1, \tx_2)$ are disjoint, because for every node $j\in S_2$, $t_j(\tx_1) - t_j(\tx_2)\ge t_1 - \Delta -t_2 \ge -\Delta > -\delta$. Then the set $|I(\tx_1,\tx_2)| < n'/2 \le n/2 < \gamma n$.   
 \end{proof}
 
-\subsection{$(\gamma\in(\frac{k}{k+1}, h], \delta\in (\Delta/k, +\infty)$-fairness exists}
+\subsection{$(\gamma\in(1-\frac{h}{k}, h], \delta\in (2\Delta/k, +\infty)$-fairness exists}
 Can we achieve fairness with smaller $\delta$? The answer is yes, if we increase the ratio $\gamma$. 
 
 \begin{lemma}\label{lemma:intersect}
@@ -155,7 +157,7 @@ Can we achieve fairness with smaller $\delta$? The answer is yes, if we increase
     The last inequality holds because $|T_{j-1}\cup S_j|\le |U|$, since $T_{j-1}\cup S_j$ is a subset of $U$.  
 \end{proof}
 
-\begin{lemma}
+\begin{lemma} \label{lemma:in-k}
 When $\gamma\in (1-\frac{1}{k}, h]$ and $\delta > 0$, for any sequence of $j\le k$ transactions $\tx_1, \tx_2, \dots, \tx_{j}$ such that $\tx_1\prec \tx_2\prec \cdots \prec \tx_{j}$, $\tx_{j}\prec \tx_1$ does not hold. 
 \end{lemma}
 
@@ -165,14 +167,14 @@ When $\gamma\in (1-\frac{1}{k}, h]$ and $\delta > 0$, for any sequence of $j\le 
 
 The above lemma implies that we can increase the ratio $\gamma$ to rule out more precede loops. However, the ratio will be $1$ when we want to rule out all precede loops. We need another scheme to rule out all precede loops. 
 
-\begin{lemma}
+\begin{lemma}\label{lemma:cross-k}
     If $\gamma \in (1-\frac{h}{k}, h]$ and $\delta > 2\Delta/k$, for any sequence of $k+1$ transactions $\tx_1, \tx_2, \dots, \tx_{k+1}$ such that $\tx_1\prec \tx_2\prec \cdots \prec \tx_{k+1}$, all honest nodes receive $\tx_1$ before $\tx_{k+1}$.
 \end{lemma}
 \begin{proof}
     Consider the sets $IH_1 = I(\tx_1, \tx_2)\cap H, IH_2 = I(\tx_2, \tx_3)\cap H, \dots, IH_k=I(\tx_k, \tx_{k+1})\cap H$. Each set $IH_i$ consists of at least $(\gamma-m)n$ nodes. Each set $IH_i$ is also a subset of $H$, whose size is $hn$. By Lemma \ref{lemma:intersect}, the intersection of these $k$ sets has at least $k(\gamma-m)n - (k-1)hn = kn(\gamma - (1-\frac{h}{k})) > 0$ nodes. Take one node from this non-empty intersection, it is honest and receives $\tx_1$ before $\tx_{k+1}$ by $k\delta > 2\Delta$. Other valid nodes receive $\tx_1$ before $\tx_{k+1}$. 
 \end{proof}
 
-
+By the above lemmas, transaction order fairness for $\gamma\in(1-\frac{h}{k}, h]$ and $\delta\in(2\Delta/k, +\infty)$ exists. Suppose for the contrary, there exists a sequence of $l$ transactions $\tx_1, \tx_2, \dots, \tx_l$ such that $\tx_1\prec \tx_2\prec \cdots \prec \tx_l$ and $\tx_l\prec \tx_1$. If $l\le k$, then by Lemma \ref{lemma:in-k}, this is a contradiction. If $l\ge k+1$, suppose $l-1=n_1 k + n_2$, where $n_1 \ge 1$ and $0 \le n_2 <k$. According to Lemma \ref{lemma:cross-k}, we have all honest nodes receive $\tx_1$ before $\tx_{k+1}$, and receive $\tx_{k+1}$ before $\tx_{2k+1}$, ..., and receive $\tx_{(n_1-1)k+1}$ before $\tx_{n_1 k +1}$. Therefore, all honest nodes receive $\tx_1$ before $\tx_{n_1 k+1}$, which along with $\tx_l\prec \tx_1$ implies $\tx_l\prec \tx_{n_1 k +1}$. Therefore, a precede loop $\tx_{n_1 k+1} \prec \cdots \prec \tx_l \prec \tx_{n_1 k +1}$ of length $l-(n_1 k + 1)+1 = n_2+1\le k$. By Lemma \ref{lemma:in-k}, this is a contradiction.
 
 \begin{credits}
 \subsubsection{\ackname} 
