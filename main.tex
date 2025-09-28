@@ -15,9 +15,10 @@
 %
 % If you use the hyperref package, please uncomment the following two lines
 % to display URLs in blue roman font according to Springer's eBook style:
-%\usepackage{color}
-%\renewcommand\UrlFont{\color{blue}\rmfamily}
-%\urlstyle{rm}
+\usepackage{color}
+\usepackage{hyperref}
+\renewcommand\UrlFont{\color{blue}\rmfamily}
+\urlstyle{rm}
 %
 
 \usepackage{amssymb}
@@ -30,16 +31,16 @@
 % If the paper title is too long for the running head, you can set
 % an abbreviated paper title here
 %
-\author{Zhuo Cai\inst{1}\orcidID{0000-0001-9673-6888} \and
-Amir Kafshdar Goharshady\inst{2}\orcidID{0000-0003-1702-6584}}
-%
-\authorrunning{Z. Cai and A. Goharshady}
+% \author{Zhuo Cai\inst{1}\orcidID{0000-0001-9673-6888} \and
+% Amir Kafshdar Goharshady\inst{2}\orcidID{0000-0003-1702-6584}}
+% %
+% \authorrunning{Z. Cai and A. Goharshady}
 % First names are abbreviated in the running head.
 % If there are more than two authors, 'et al.' is used.
 %
-\institute{Hong Kong University of Science and Technology, HKSAR, China \email{zcaiam@connect.ust.hk} \and
-University of Oxford, Oxford, UK 
-\email{goharshady@cs.ox.ac.uk}}
+% \institute{Hong Kong University of Science and Technology, HKSAR, China \email{zcaiam@connect.ust.hk} \and
+% University of Oxford, Oxford, UK 
+% \email{goharshady@cs.ox.ac.uk}}
 %
 \maketitle              % typeset the header of the contribution
 %
@@ -51,10 +52,14 @@ The abstract should briefly summarize the contents of the paper in
 \end{abstract}
 %
 %
+\input{intro}
 
-\section{Introduction}
-Following research of \cite{DBLP:conf/crypto/Kelkar0GJ20}. 
+\input{related}
+\input{result1}
 
+
+
+\section{END HERE ==== BELOW IS INVALID}
 \subsection{System Model}
 \paragraph{Nodes/Committee} Assume a committee of $n$ nodes is responsible for processing transactions in the blockchain system. 
 
@@ -89,16 +94,16 @@ A transaction ordering mechanism $\Gamma$ is said to satisfy \emph{($\gamma,\del
 A $(\gamma,\delta)$-transaction order fairness mechanism $\Gamma$ exists, if and only if there is no list of transactions $\tx_1, \tx_2,\dots, \tx_k$ such that $\tx_1\prec \tx_2\cdots \prec \tx_k \prec \tx_1$. 
 \end{lemma}
 
-Notation: we call a list of transactions $\tx_1, \tx_2,\dots, \tx_k$ such that $\tx_1\prec \tx_2\cdots \prec \tx_k \prec \tx_1$ as a \emph{precede loop}.
+Notation: we call a list of transactions $\tx_1, \tx_2,\dots, \tx_k$ such that $\tx_1\prec \tx_2\cdots \prec \tx_k \prec \tx_1$ as a \emph{precede cycle}.
 
 \begin{proof} 
     (1) If there exists a mechanism $\Gamma$, for any list of transactions $\tx_1, \tx_2,\dots, \tx_k$ such that $\tx_1\prec \tx_2\cdots \prec \tx_k \prec \tx_1$, then $\Gamma$ should output $\tx_1$ before $\tx_2$, $\tx_2$ before $\tx_3$, ..., and $\tx_k$ before $\tx_1$. This is a contradiction, since the output of $\Gamma$ is a total ordering of transactions.
-    (2) Now assume there is no list of transactions $\tx_1, \tx_2,\dots, \tx_k$ such that $\tx_1\prec \tx_2\cdots \prec \tx_k \prec \tx_1$. We observe that for any set of transactions, one of it is not constraint to be preceded by other transactions, since otherwise every transaction is preceded by some other transaction so that a precede loop exists. We can construct a mechanism $\Gamma$ by repeating the following: pick one transaction $\tx$ from the set of all unpicked transactions, such that there is no transaction $\tx'$ such that $\tx'\prec \tx$. $\Gamma$ outputs transactions by the order they are picked. 
+    (2) Now assume there is no list of transactions $\tx_1, \tx_2,\dots, \tx_k$ such that $\tx_1\prec \tx_2\cdots \prec \tx_k \prec \tx_1$. We observe that for any set of transactions, one of it is not constraint to be preceded by other transactions, since otherwise every transaction is preceded by some other transaction so that a precede cycle exists. We can construct a mechanism $\Gamma$ by repeating the following: pick one transaction $\tx$ from the set of all unpicked transactions, such that there is no transaction $\tx'$ such that $\tx'\prec \tx$. $\Gamma$ outputs transactions by the order they are picked. 
 \end{proof}
 
-\paragraph{Basic bounds for $\gamma$} We naturally require that $\gamma$ be in $(m, h]$. If $\gamma$ is smaller than $m$, then malicious nodes can always report they receive a transaction $\tx_1$ before another transaction $\tx_2$ while honest nodes report the opposite. $\tx_1\prec\tx_2$ and $\tx_2\prec\tx_1$ can both hold, which leads to a precede loop, so that no mechanism achieves our fairness property. If $\gamma$ is larger than $h$, if malicious nodes always report the opposite of (the majority of) honest nodes, then the number of nodes that report to receive $\tx_1$ before $\tx_2$ is at most $h n$, which is smaller than $\gamma n$. No meaningful precede constraint is placed on the transactions, and the mechanism can output any order of transactions. 
+\paragraph{Basic bounds for $\gamma$} We naturally require that $\gamma$ be in $(m, h]$. If $\gamma$ is smaller than $m$, then malicious nodes can always report they receive a transaction $\tx_1$ before another transaction $\tx_2$ while honest nodes report the opposite. $\tx_1\prec\tx_2$ and $\tx_2\prec\tx_1$ can both hold, which leads to a precede cycle, so that no mechanism achieves our fairness property. If $\gamma$ is larger than $h$, if malicious nodes always report the opposite of (the majority of) honest nodes, then the number of nodes that report to receive $\tx_1$ before $\tx_2$ is at most $h n$, which is smaller than $\gamma n$. No meaningful precede constraint is placed on the transactions, and the mechanism can output any order of transactions. 
 
-In some cases (small $\delta$ or asynchronous network), we require $\gamma$ to be larger than $1/2$ to avoid the possibility of $\tx_1\prec \tx_2$ and $\tx_2\prec \tx_1$ both holding. In other cases (synchronous network and large $\delta$), self-loop is impossible even for $\gamma\in (m, 1/2]$. 
+In some cases (small $\delta$ or asynchronous network), we require $\gamma$ to be larger than $1/2$ to avoid the possibility of $\tx_1\prec \tx_2$ and $\tx_2\prec \tx_1$ both holding. In other cases (synchronous network and large $\delta$), self-cycle is impossible even for $\gamma\in (m, 1/2]$. 
 
 \section{Results under the Synchronous Network Model}
 
@@ -121,7 +126,7 @@ At the end of exhaustive pruning, we have a set of valid reports. Let $n'$ be th
 
 We use the following general solution: transaction ordering mechanisms only consider transactions that have been received by at least $hn$ nodes $\Delta$ time before the prescribed report time.  For example, if a report is scheduled at time $t$, then the mechanism only considers transactions that have been received by at least $hn$ nodes before time $t-\Delta$. We prove that transactions ordered by such a mechanism will not violate precede constraints in future slots. Proof by contradiction, if $\tx_1\prec \tx_2$ but the mechanism (1) outputs $\tx_2$ before $\tx_1$, or (2) outputs $\tx_2$ but not $\tx_1$. In case (1), at least $hn$ nodes received $\tx_1$ by $t-\Delta$, by pruning all reports of nodes that received $\tx_1$ after $t$ are pruned. The same applies to $\tx_2$. This implies that all valid reports of $\tx_1$ and $\tx_2$ are already considered. (2) Since $\tx_2$ is output, at least $hn$ nodes received $\tx_2$ by $t-\Delta$, by pruning, all valid reports received $\tx_2$ by $t$. If $\tx_1\prec \tx_2$, then all valid reports received $\tx_1$ by $t-\delta$, which should appear in the reports of the current slot. 
 
-\paragraph{Constructive Mechanism vs General Mechanism} There are two flavors to show existence of transaction order fairness mechanisms. The first is to construct a mechanism that satisfies the fairness property, which we call a \emph{constructive mechanism}. The second is to show that no precede loop exists, and then use a general mechanism to order the transactions. 
+\paragraph{Constructive Mechanism vs General Mechanism} There are two flavors to show existence of transaction order fairness mechanisms. The first is to construct a mechanism that satisfies the fairness property, which we call a \emph{constructive mechanism}. The second is to show that no precede cycle exists, and then use a general mechanism to order the transactions. 
 
 \subsection{Two simple mechanisms: arbitrary timestamp and median timestamp}
 We present two simple mechanisms. The first is to simply select an honest node to broadcast its local timestamps of receiving transactions. How to make sure the proposal is honest? If more than $mn$ nodes object to the proposal, then the proposal is not honest. Nodes object to the proposal if after comparing the proposal with their own timestamps and find any transaction $\tx$ such that the proposal reports to receive $\tx$ at more than $\Delta$ time away from their own timestamps. Such a mechanism can be easily adopted in practice, by asking the validators to attach their local timestamps in their proposals and asking the committee to not vote for proposals that have inconsistent timestamps. This simple mechanism satisfies the fairness property for $\gamma\in(m,h]$ and $\delta\in(4\Delta,+\infty)$. If a precede relation $\tx_1\prec \tx_2$ exists, then an honest node receives $\tx_1$ before $\tx_2$ by $\delta>4\Delta$. According to $\Delta$-synchrony, all honest nodes receive $\tx_1$ before $\tx_2$ by $2\Delta$. If a node tries to put $\tx_2$ before $\tx_1$ in the proposal, then it is considered invalid by all honest nodes. 
@@ -130,21 +135,24 @@ The second computes the median timestamp over nodes of every transaction, then o
 
 The median timestamp mechanism uses pruning and completely discard invalid reports. The median is defined as the median among valid reports. For transactions appearing in some but not all valid reports, we compute the median timestamp by considering missing timestamps as $+\infty$. By truncation, for every transaction that the mechanism outputs, at least $hn>n/2$ timestamps are received so that its median timestamp is one of the actually reported timestamps (not $+\infty$).  
 
-\subsection{$(\gamma\in(m,h], \delta\in(2\Delta,+\infty))$-fairness exists}
+\subsection{Deprecated: $(\gamma\in(m,h], \delta\in[2\Delta,+\infty))$-fairness exists}
 
 For any sequence of transactions $\tx_1, \tx_2, \dots, \tx_k$ such that $\tx_1\prec \tx_2\prec \cdots \prec \tx_k$, we show that $\tx_k \prec \tx_1$ does not hold. 
 \begin{proof}
-For any $\tx_i$ and $\tx_{i+1}$, $\tx_i\prec \tx_{i+1}$ implies that at least one honest node $j$ satisfies $t_j(\tx_{i}) < t_j(\tx_{i}) - \delta$. For any other honest node $j'$, we have $t_{j'}(\tx_{i}) \le t_j(\tx_{i}) + \Delta$ and $t_{j'}(\tx_{i+1}) \ge t_j(\tx_{i+1}) - \Delta$. Therefore, we have $t_{j'}(\tx_i) < t_{j'}(\tx_{i+1}) - (\delta - 2\Delta) < t_{j'}(\tx_{i+1})$. This implies all honest nodes receive $\tx_{i}$ before $\tx_{i+1}$. Therefore, all honest nodes receive $\tx_{1}$ before $\tx_{k}$. $I(\tx_{k}, \tx_{1})$ is a subset of malicious nodes $M$. Therefore, $|I(\tx_{k}, \tx_{1})|\le mn < \gamma n$. 
+For any $\tx_i$ and $\tx_{i+1}$, $\tx_i\prec \tx_{i+1}$ implies that at least one honest node $j$ satisfies $t_j(\tx_{i}) \le t_j(\tx_{i}) - \delta$. For any other honest node $j'$, we have $t_{j'}(\tx_{i}) \le t_j(\tx_{i}) + \Delta$ and $t_{j'}(\tx_{i+1}) \ge t_j(\tx_{i+1}) - \Delta$. Therefore, we have $t_{j'}(\tx_i) \le t_{j'}(\tx_{i+1}) - (\delta - 2\Delta) \le t_{j'}(\tx_{i+1})$. This implies all honest nodes receive $\tx_{i}$ before $\tx_{i+1}$. Therefore, all honest nodes receive $\tx_{1}$ before $\tx_{k}$. $I(\tx_{k}, \tx_{1})$ is a subset of malicious nodes $M$. Therefore, $|I(\tx_{k}, \tx_{1})|\le mn < \gamma n$. 
 \end{proof} 
 
-\subsection{$(\gamma\in(1/2,h], \delta\in(\Delta,+\infty))$-fairness exists}
+
+\subsection{Deprecated: $(\gamma\in(1/2,h], \delta\in(\Delta,+\infty))$-fairness exists}
 We show that the median timestamp mechanism satisfies transaction order fairness for $\gamma\in(1/2,h]$ and $\delta\in(\Delta,+\infty)$. We show that whenever $\tx_1\prec \tx_2$, the median timestamp of $\tx_1$ is smaller than that of $\tx_2$. But we prove it in the reverse direction, i.e., if the median timestamp of $\tx_1$ is larger than or equal to that of $\tx_2$, then $\tx_1\prec \tx_2$ does not hold. 
 
 \begin{proof}
     Let $t_1, t_2$ denote the median timestamp of $\tx_1$ and $\tx_2$. Let $n'$ denote the number of valid reports. The assumption says that $t_1\ge t_2$. More than $n'/2$ nodes report $\tx_1$ at or after $t_1$. By pruning, all valid nodes report $\tx_1$ at or after $t_1-\Delta$. On the other hand, the set of valid nodes who report $\tx_2$ at or before $t_2$, denoted $S_2$, consist of more than $n'/2$ nodes. The set $S_2$ and set $I(\tx_1, \tx_2)$ are disjoint, because for every node $j\in S_2$, $t_j(\tx_1) - t_j(\tx_2)\ge t_1 - \Delta -t_2 \ge -\Delta > -\delta$. Then the set $|I(\tx_1,\tx_2)| < n'/2 \le n/2 < \gamma n$.   
 \end{proof}
 
-\subsection{$(\gamma\in(1-\frac{h}{k}, h], \delta\in (2\Delta/k, +\infty)$-fairness exists}
+ceive $\tx_1$ at time $t1$ and $\tx_2$ at time $t1+\Delta$, and the other half receive $\tx_1$ at time $t1+\Delta$ and $\tx_2$ at time $t1$. 
+
+\subsection{Deprecated: $(\gamma\in(1-\frac{h}{k}, h], \delta\in (2\Delta/k, +\infty)$-fairness exists}
 Can we achieve fairness with smaller $\delta$? The answer is yes, if we increase the ratio $\gamma$. 
 
 \begin{lemma}\label{lemma:intersect}
@@ -165,16 +173,36 @@ When $\gamma\in (1-\frac{1}{k}, h]$ and $\delta > 0$, for any sequence of $j\le 
     Let $S(\tx, \tx')$ denote the set of nodes that receive transaction $\tx$ before transaction $\tx'$. It is clear that $I(\tx, \tx')\subseteq S(\tx, \tx')$. Suppose $\tx_j\prec\tx_1$ holds. Then any set from $I(\tx_1,\tx_2), \dots, I(\tx_{j}, \tx_{1})$ has at least $\gamma n$ nodes. Therefore, the intersection of these $k$ sets has at least $j\gamma n - (j-1) n = jn(\gamma - (1-\frac{1}{j})) > jn(1-\frac{1}{k} - (1-\frac{1}{j})) \ge 0$ nodes. Take one node from this non-empty intersection, it receives $\tx_1$ before $\tx_j$ and receives $\tx_j$ before $\tx_1$. This is a contradiction. 
 \end{proof}
 
-The above lemma implies that we can increase the ratio $\gamma$ to rule out more precede loops. However, the ratio will be $1$ when we want to rule out all precede loops. We need another scheme to rule out all precede loops. 
+The above lemma implies that we can increase the ratio $\gamma$ to rule out more precede cycles. However, the ratio will be $1$ when we want to rule out all precede cycles. We need another scheme to rule out all precede cycles. 
 
 \begin{lemma}\label{lemma:cross-k}
     If $\gamma \in (1-\frac{h}{k}, h]$ and $\delta > 2\Delta/k$, for any sequence of $k+1$ transactions $\tx_1, \tx_2, \dots, \tx_{k+1}$ such that $\tx_1\prec \tx_2\prec \cdots \prec \tx_{k+1}$, all honest nodes receive $\tx_1$ before $\tx_{k+1}$.
 \end{lemma}
 \begin{proof}
-    Consider the sets $IH_1 = I(\tx_1, \tx_2)\cap H, IH_2 = I(\tx_2, \tx_3)\cap H, \dots, IH_k=I(\tx_k, \tx_{k+1})\cap H$. Each set $IH_i$ consists of at least $(\gamma-m)n$ nodes. Each set $IH_i$ is also a subset of $H$, whose size is $hn$. By Lemma \ref{lemma:intersect}, the intersection of these $k$ sets has at least $k(\gamma-m)n - (k-1)hn = kn(\gamma - (1-\frac{h}{k})) > 0$ nodes. Take one node from this non-empty intersection, it is honest and receives $\tx_1$ before $\tx_{k+1}$ by $k\delta > 2\Delta$. Other valid nodes receive $\tx_1$ before $\tx_{k+1}$. 
+    Consider the sets $IH_1 = I(\tx_1, \tx_2)\cap H, IH_2 = I(\tx_2, \tx_3)\cap H, \dots, IH_k=I(\tx_k, \tx_{k+1})\cap H$. Each set $IH_i$ consists of at least $(\gamma-m)n$ nodes. Each set $IH_i$ is also a subset of $H$, whose size \subsection{Tight bound for $\delta> \Delta$: $\gamma\in (m, h]$}
+The above results are not tight. We show that a tight bound can be achieved using range analysis, i.e., explicitly analyzing the range of time that a transaction is received by honest nodes. Firstly we show that fairness exists for $\gamma\in(m,h], \delta\in(\Delta, +\infty)$, then we show it is tight. 
+
+\paragraph{Existence} Suppose that there exists a sequence of transactions $\tx_1, \tx_2, \dots, \tx_k$ such that $\tx_1\prec \tx_2\prec \cdots \prec \tx_k$ and $\tx_k\prec \tx_1$. We show that this leads to a contradiction. Suppose the earliest time for an honest node to receive $\tx_1$ is $t_1$, then a range for $\tx_1$ (by range of a transaction we refer to a $\Delta$ duration time range that honest nodes receive the transaction within the range) is $[t_1, t_1+\Delta]$. Since an honest node attests to the relation $\tx_1\prec \tx_2$, an honest node receives $\tx_2$ at $t_1+\delta+\delta_1$ time, where $\delta_1\ge 0$. This implies that a range of $\tx_2$ is $[t_1+(\delta-\Delta)+\delta_1, t_1+\delta+\delta_1]$. The important fact is that a range of $\tx_2$ is strictly to the right of the range of $\tx_1$, since $\delta-\Delta>0$. Repeating the analysis, a range of $\tx_k$ is $[t_1+(k-1)(\delta-\Delta)+\delta_1+\cdots+\delta_{k-1}, t_1 + \Delta +(k-1)(\delta-\Delta)+\delta_1+\cdots+\delta_{k-1}]$, strictly to the right of the range of $\tx_1$. No honest node can receive $\tx_k$ before $\tx_1$ by $\delta$ time, because $\Delta - (k-1)(\delta-\Delta)-\sum_{j=1}^{k-1}\delta_{j} < \Delta < \delta$. 
+
+\paragraph{Tightness} We show that the above bound is tight. (1) $\gamma\in(m,h]$ is the natural bound. (2) If $\delta\le \Delta$, then $\tx_1\prec\tx_2$ and $\tx_2\prec\tx_1$ can both hold, with half of nodes (honest or dishonest) reis $hn$. By Lemma \ref{lemma:intersect}, the intersection of these $k$ sets has at least $k(\gamma-m)n - (k-1)hn = kn(\gamma - (1-\frac{h}{k})) > 0$ nodes. Take one node from this non-empty intersection, it is honest and receives $\tx_1$ before $\tx_{k+1}$ by $k\delta > 2\Delta$. Other valid nodes receive $\tx_1$ before $\tx_{k+1}$. 
 \end{proof}
 
-By the above lemmas, transaction order fairness for $\gamma\in(1-\frac{h}{k}, h]$ and $\delta\in(2\Delta/k, +\infty)$ exists. Suppose for the contrary, there exists a sequence of $l$ transactions $\tx_1, \tx_2, \dots, \tx_l$ such that $\tx_1\prec \tx_2\prec \cdots \prec \tx_l$ and $\tx_l\prec \tx_1$. If $l\le k$, then by Lemma \ref{lemma:in-k}, this is a contradiction. If $l\ge k+1$, suppose $l-1=n_1 k + n_2$, where $n_1 \ge 1$ and $0 \le n_2 <k$. According to Lemma \ref{lemma:cross-k}, we have all honest nodes receive $\tx_1$ before $\tx_{k+1}$, and receive $\tx_{k+1}$ before $\tx_{2k+1}$, ..., and receive $\tx_{(n_1-1)k+1}$ before $\tx_{n_1 k +1}$. Therefore, all honest nodes receive $\tx_1$ before $\tx_{n_1 k+1}$, which along with $\tx_l\prec \tx_1$ implies $\tx_l\prec \tx_{n_1 k +1}$. Therefore, a precede loop $\tx_{n_1 k+1} \prec \cdots \prec \tx_l \prec \tx_{n_1 k +1}$ of length $l-(n_1 k + 1)+1 = n_2+1\le k$. By Lemma \ref{lemma:in-k}, this is a contradiction.
+By the above lemmas, transaction order fairness for $\gamma\in(1-\frac{h}{k}, h]$ and $\delta\in(2\Delta/k, +\infty)$ exists. Suppose for the contrary, there exists a sequence of $l$ transactions $\tx_1, \tx_2, \dots, \tx_l$ such that $\tx_1\prec \tx_2\prec \cdots \prec \tx_l$ and $\tx_l\prec \tx_1$. If $l\le k$, then by Lemma \ref{lemma:in-k}, this is a contradiction. If $l\ge k+1$, suppose $l-1=n_1 k + n_2$, where $n_1 \ge 1$ and $0 \le n_2 <k$. According to Lemma \ref{lemma:cross-k}, we have all honest nodes receive $\tx_1$ before $\tx_{k+1}$, and receive $\tx_{k+1}$ before $\tx_{2k+1}$, ..., and receive $\tx_{(n_1-1)k+1}$ before $\tx_{n_1 k +1}$. Therefore, all honest nodes receive $\tx_1$ before $\tx_{n_1 k+1}$, which along with $\tx_l\prec \tx_1$ implies $\tx_l\prec \tx_{n_1 k +1}$. Therefore, a precede cycle $\tx_{n_1 k+1} \prec \cdots \prec \tx_l \prec \tx_{n_1 k +1}$ of length $l-(n_1 k + 1)+1 = n_2+1\le k$. By Lemma \ref{lemma:in-k}, this is a contradiction. 
+
+\subsection{Tight bound for $\delta<\Delta$: $\gamma\in (1-\frac{h}{k}, h], \gamma\in (\frac{\Delta}{k}, \infty)$}
+
+We improve the above result from $\delta>\frac{2\Delta}{k}$ to $\delta>\frac{\Delta}{k}$. The main idea is to use more precise range analysis. 
+
+\paragraph{Existence} Firstly note that we require $1-\frac{h}{k}<h$, which implies $h>\frac{k}{k+1}$ and $m<\frac{1}{k+1}$. Suppose $\tx_1\prec \tx_2\prec \cdots \prec \tx_l$. Note that for each relation $\tx_i\prec \tx_{i+1}$, we require at least $\gamma-m > 1-\frac{h}{k} - (1-h) = (1-\frac{1}{k})h$ honest nodes to attest to the relation. Assume the (honest) range for $\tx_1$ is $[t_1-\delta_1, t_1+\Delta-\delta_1]$, where $t_1$ is the cutting point that at the $\gamma-h$-th honest node (ordered by their time to receive $\tx_1$) then the range of $\tx_2$ is at least $[t_1+(\delta-\Delta), t_1+\delta]$. More precisely, at least $(1-\frac{1}{k})hn$ honest nodes receive $\tx_2$ at or after $t_1+\delta$. Next, in the relation of $\tx_2\prec \tx_3$, at least $(1-\frac{1}{k})hn$ honest nodes attest to the relation, and at least $(1-\frac{2}{k})hn$ honest nodes among them receive $\tx_2$ at or after $t_1+\delta$ and therefore receive $\tx_3$ at or after $t_1+2\delta$. This sets the range of $\tx_3$ to be at least $[t_1+2\delta-\Delta, t_1+2\delta]$. Repeating the analysis, the situation changes at $\tx_k$ to $\tx_{k+1}$ and then to $\tx_{k+2}$. The range of $\tx_{k}$ is at least $[t_1+(k-1)\delta - \Delta, t_1 + (k-1)\delta]$, and at least $(1-\frac{k-1}{k})hn = \frac{1}{k}hn$ honest nodes receive $\tx_k$ at or after $t_1+(k-1)\delta$. For the relation $\tx_{k}\prec \tx_{k+1}$, at least one honest node from those receive $\tx_k$ at or after $t_1+(k-1)\delta$ must attest to the relation, which implies that the range of $\tx_{k+1}$ is at least $[t_1+k\delta - \Delta, t_1+k\delta]$. When $\delta>\frac{\Delta}{k}$, we know that the range of $\tx_{k+1}$ is strictly to the right of the range of $\tx_1$. 
+
+By lemma \ref{lemma:in-k}, we know that there is no loop of length $k$ or less. 
+
+\section{Optimal Delay Scheme}
+The above analysis only shows a bound for feasible parameters, i.e., when $\delta$ is sufficiently large, we guarantee that there is no cycle. In a real execution, it is possible that there is no cycle even if we reduce $\delta$ to a smaller value, sometimes even set $\delta$ to $0$. 
+
+Our definition of fairness is actually flexible in this. We can present an easy procedure to achieve the optimal $\delta$ for any real execution. Intuitively, suppose every node reports the same set of transactions for simplicity, for each pair of two transactions $\tx_1$ and $\tx_2$, if most nodes receive $\tx_1$ before $\tx_2$, add an directed edge $\tx_1\leftarrow \tx_2$, otherwise, add an directed edge $\tx_2\leftarrow\tx_1$.  Then find the maximum $d_{\tx_1,\tx_2}$ such that at least $\gamma$ nodes receive $\tx_1$ before $\tx_2$ by $d_{\tx_1,\tx_2}$, or the maximum $d_{\tx_1, \tx_2}$ at least $\gamma$ nodes receive $\tx_2$ before $\tx_1$.  If no such $d_{\tx_1,\tx_2}$ exists, then we can set $d_{\tx_1,\tx_2} = -\epsilon$ for some small $\epsilon>0$. Then we build another directed graph where transactions are nodes and initially no edges exist. Order edges of the first graph by $d_{\tx_1,\tx_2}$. Repeat: add the edge with the largest $d$ in the remaining edges of the first graph to the second graph, remove the edge from the first graph. If the second graph has a cycle, then we remove the edge with the smallest $d$ in the cycle. 
+
+How to handle missing transactions? By only processing 
 
 \begin{credits}
 \subsubsection{\ackname} 
